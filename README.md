@@ -1,4 +1,4 @@
-# ![Logo](https://raw.githubusercontent.com/RobThree/IPNetworkHelper/master/logo.png) IPNetworkHelper
+# <img src="https://raw.githubusercontent.com/RobThree/IPNetworkHelper/master/logo.png" width="24" height="24"> IPNetworkHelper
 
 Provides helper (extension)methods for working with (IPv4 and/or IPv6) [IPNetworks](https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.httpoverrides.ipnetwork). These include parsing, splitting and extracting networks from larger networks.
 
