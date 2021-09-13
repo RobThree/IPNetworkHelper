@@ -48,6 +48,18 @@ var result = network.Extract(desired);
 
 Note: NetworkHelper's `Parse()` and `TryParse()` methods will only accept networks with a prefix at network boundaries, unlike [IPNetwork's constructor](https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.httpoverrides.ipnetwork.-ctor). Use the `HasValidPrefix()` extension method to check wether a prefix is valid for any given `IPNetwork`.
 
+This library also includes an `IPAddressComparer` and `IPNetworkComparer` to be used when sorting IPAddresses or networks:
+
+```c#
+var ips = new[] { "192.168.64.0", "192.168.10.32", "192.168.0.0", "192.168.10.16", "192.168.10.0" }
+    .Select(IPAddress.Parse)
+    .OrderBy(n => n, IPAddressComparer.Default);
+
+var networks = new[] { "192.168.64.0/18", "192.168.10.32/27", "192.168.0.0/16", "192.168.10.16/28", "192.168.10.0/28" }
+    .Select(NetworkHelper.Parse)
+    .OrderBy(n => n, IPNetworkComparer.Default);
+```
+
 <hr>
 
 Icon made by [prettycons](http://www.flaticon.com/authors/prettycons) from [www.flaticon.com](http://www.flaticon.com) is licensed by [CC 3.0](http://creativecommons.org/licenses/by/3.0/).
