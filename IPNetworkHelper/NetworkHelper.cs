@@ -8,7 +8,7 @@ using System.Net.Sockets;
 
 namespace IPNetworkHelper
 {
-    public static class IPNetworkHelper
+    public static class NetworkHelper
     {
         public static IPNetwork Parse(string value)
         {
