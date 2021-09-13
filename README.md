@@ -46,7 +46,7 @@ var result = network.Extract(desired);
 // 192.168.128.0/17
 ```
 
-Note: NetworkHelper's `Parse()` and `TryParse()` methods will only accept networks with a prefix at network boundaries, unlike [IPNetwork's constructor](https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.httpoverrides.ipnetwork.-ctor).
+Note: NetworkHelper's `Parse()` and `TryParse()` methods will only accept networks with a prefix at network boundaries, unlike [IPNetwork's constructor](https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.httpoverrides.ipnetwork.-ctor). Use the `HasValidPrefix()` extension method to check wether a prefix is valid for any given `IPNetwork`.
 
 <hr>
 
