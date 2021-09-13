@@ -8,10 +8,10 @@ All of the below examples use IPv4 but IPv6 works just as well.
 
 ```c#
 // Parse a network, throws on invalid networks
-var network = IPNetworkHelper.Parse("192.168.0.0/16");
+var network = NetworkHelper.Parse("192.168.0.0/16");
 
 // Tries to parse network, returns true when succeeded, false otherwise and the parsed network
-if (IPNetworkHelper.TryParse("192.168.0.0/16", out var othernetwork))
+if (NetworkHelper.TryParse("192.168.0.0/16", out var othernetwork))
 {
     // ...
 }
@@ -27,7 +27,7 @@ var last = network.GetLastIP();     // Broadcast    (192.168.255.255)
 var (left, right) = network.Split();    // Returns 192.168.0.0/17 and 192.168.128.0/17
 
 // Remove a subnet from a network
-var desired = IPNetworkHelper.Parse("192.168.10.16/28");
+var desired = NetworkHelper.Parse("192.168.10.16/28");
 var result = network.Extract(desired);
 
 // Result:
@@ -46,7 +46,7 @@ var result = network.Extract(desired);
 // 192.168.128.0/17
 ```
 
-Note: IPNetworkHelper's `Parse()` and `TryParse()` methods will only accept networks with a prefix at network boundaries, unlike [IPNetwork's constructor](https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.httpoverrides.ipnetwork.-ctor).
+Note: NetworkHelper's `Parse()` and `TryParse()` methods will only accept networks with a prefix at network boundaries, unlike [IPNetwork's constructor](https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.httpoverrides.ipnetwork.-ctor).
 
 <hr>
 

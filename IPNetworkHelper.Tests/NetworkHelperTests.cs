@@ -6,7 +6,7 @@ using System.Net;
 namespace IPNetworkHelper.Tests
 {
     [TestClass]
-    public class IPNetworkHelperTests
+    public class NetworkHelperTests
     {
         [TestMethod]
         public void TryParseCIDRIPv4()
