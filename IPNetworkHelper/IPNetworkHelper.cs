@@ -74,7 +74,7 @@ namespace IPNetworkHelper
         }
 
         private static bool IsValidPrefixLength(byte[] prefixBytes, int prefixLength)
-            => prefixLength <= prefixBytes.Length * 8 && prefixLength > 0;
+            => prefixLength <= prefixBytes.Length * 8 && prefixLength >= 0;
 
         private static byte[] CreateMask(byte[] prefixBytes, int prefixLength)
         {

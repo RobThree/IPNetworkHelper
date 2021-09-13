@@ -42,17 +42,17 @@ namespace IPNetworkHelper.Tests
         public void TryParsePrefixLengthMustBeValid()
         {
             Assert.IsFalse(IPNetworkHelper.TryParse("192.168.0.0/33", out var _));  // Should fail, max is 32
-            Assert.IsFalse(IPNetworkHelper.TryParse("0.0.0.0/0", out var _));  // Should fail, min is 1
+            Assert.IsFalse(IPNetworkHelper.TryParse("0.0.0.0/-1", out var _));  // Should fail, min is 0
 
             Assert.IsFalse(IPNetworkHelper.TryParse("DEAD:BEEF:0:1234::/129", out var _));  // Should fail, max is 128
-            Assert.IsFalse(IPNetworkHelper.TryParse("0::0/0", out var _));    // Should fail, min is 1
+            Assert.IsFalse(IPNetworkHelper.TryParse("0::0/-1", out var _));    // Should fail, min is 0
 
             // These should all pass since they're at the limits (min/max)
             Assert.IsTrue(IPNetworkHelper.TryParse("192.168.0.0/32", out var _));
-            Assert.IsTrue(IPNetworkHelper.TryParse("0.0.0.0/1", out var _));
+            Assert.IsTrue(IPNetworkHelper.TryParse("0.0.0.0/0", out var _));
 
             Assert.IsTrue(IPNetworkHelper.TryParse("DEAD:BEEF:0:0:1234:5678:90AB:CDEF/128", out var _));
-            Assert.IsTrue(IPNetworkHelper.TryParse("0::0/1", out var _));
+            Assert.IsTrue(IPNetworkHelper.TryParse("0::0/0", out var _));
         }
 
         [TestMethod]
@@ -167,41 +167,6 @@ namespace IPNetworkHelper.Tests
 
             Assert.IsTrue(IPNetworkHelper.HasValidPrefix(n1));
             Assert.IsFalse(IPNetworkHelper.HasValidPrefix(n2));
-
-            // Parse a network, throws on invalid networks
-            var network = IPNetworkHelper.Parse("192.168.0.0/16");
-            
-            // Tries to parse, returns true when succeeded, false otherwise and the parsed network
-            if (IPNetworkHelper.TryParse("192.168.0.0/16", out var othernetwork))
-            {
-                // ...
-            }
-
-            // Get first/last IP from network
-            var first = network.GetFirstIP();   // Network      (192.168.0.0)
-            var last = network.GetLastIP();     // Broadcast    (192.168.255.255)
-
-            // Splits a network into two halves
-            var (left, right) = network.Split();    // Returns 192.168.0.0/17 and 192.168.128.0/17
-
-            // Remove a subnet from a network
-            var desired = IPNetworkHelper.Parse("192.168.10.16/28");
-            var result = network.Extract(desired);
-
-            // Result:
-            // 192.168.0.0/21
-            // 192.168.8.0/23
-            // 192.168.10.0/28
-            // 192.168.10.16/28
-            // 192.168.10.32/27
-            // 192.168.10.64/26
-            // 192.168.10.128/25
-            // 192.168.11.0/24
-            // 192.168.12.0/22
-            // 192.168.16.0/20
-            // 192.168.32.0/19
-            // 192.168.64.0/18
-            // 192.168.128.0/17
         }
     }
 }

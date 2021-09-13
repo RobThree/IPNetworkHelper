@@ -15,7 +15,8 @@
     <RepositoryUrl>https://github.com/RobThree/IPNetworkHelper</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>networking, csharp, ipv6, dotnet, network, ipv4, ip, cidr, extension-methods, dotnet-standard, ipv6-network, cidr-notation, ipv6-subnetting, ipv4-subnetting, ipv4-network, cidr-subnet</PackageTags>
-    <PackageReleaseNotes>Initial release</PackageReleaseNotes>
+    <PackageReleaseNotes>Fix /0 subnet bug.</PackageReleaseNotes>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
