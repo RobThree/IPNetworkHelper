@@ -17,22 +17,7 @@ namespace IPNetworkHelper
         /// </summary>
         public static new IPNetworkComparer Default => _default.Value;
 
-        /// <summary>
-        /// Performs a comparison of two <see cref="IPNetwork"/>s and returns a value indicating whether one network
-        /// is less than,  equal to, or greater than the other.
-        /// </summary>
-        /// <param name="x">The first <see cref="IPAddress"/> to compare.</param>
-        /// <param name="y">The second <see cref="IPAddress"/> to compare.</param>
-        /// <returns>
-        /// Value
-        /// Condition
-        /// Less than zero
-        /// <paramref name="x"/> is less than <paramref name="y"/>.
-        /// Zero
-        /// <paramref name="x"/> equals <paramref name="y"/>.
-        /// Greater than zero
-        /// <paramref name="x"/> is greater than <paramref name="y"/>.
-        /// </returns>
+        /// <inheritdoc/>
         public override int Compare(IPNetwork? x, IPNetwork? y)
         {
             if (ReferenceEquals(x, y))
