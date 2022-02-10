@@ -15,7 +15,7 @@
     <RepositoryUrl>https://github.com/RobThree/IPNetworkHelper</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>networking, csharp, ipv6, dotnet, network, ipv4, ip, cidr, extension-methods, dotnet-standard, ipv6-network, cidr-notation, ipv6-subnetting, ipv4-subnetting, ipv4-network, cidr-subnet</PackageTags>
-    <PackageReleaseNotes>Add package description</PackageReleaseNotes>
+    <PackageReleaseNotes>Added overload to extract multiple networks from a starting network</PackageReleaseNotes>
     <Version>1.0.4</Version>
     <Description>Provides helper (extension)methods for working with IPNetworks</Description>
   </PropertyGroup>
