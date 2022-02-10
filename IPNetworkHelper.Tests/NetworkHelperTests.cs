@@ -148,6 +148,18 @@ namespace IPNetworkHelper.Tests
         }
 
         [TestMethod]
+        public void ExtractSelfReturnsSelfIPv4()
+        {
+            var network = NetworkHelper.Parse("192.168.0.0/16");
+            var desired = NetworkHelper.Parse("192.168.0.0/16");
+
+            var result = network.Extract(desired).ToArray();
+            var expected = new[] { NetworkHelper.Parse("192.168.0.0/16") };
+
+            Assert.IsTrue(result.Select((n, i) => expected[i].Equals(n)).All(v => true));
+        }
+
+        [TestMethod]
         public void ExtractIPv6()
         {
             var network = NetworkHelper.Parse("1111:2222::/32");
@@ -160,6 +172,18 @@ namespace IPNetworkHelper.Tests
         }
 
         [TestMethod]
+        public void ExtractSelfReturnsSelfIPv6()
+        {
+            var network = NetworkHelper.Parse("1111:2222::/32");
+            var desired = NetworkHelper.Parse("1111:2222::/32");
+
+            var result = network.Extract(desired).ToArray();
+            var expected = new[] { NetworkHelper.Parse("1111:2222::/32") };
+
+            Assert.IsTrue(result.Select((n, i) => expected[i].Equals(n)).All(v => true));
+        }
+
+        [TestMethod]
         public void ExtractMultipleIPv4()
         {
             var network = NetworkHelper.Parse("192.168.0.0/16");
@@ -167,6 +191,19 @@ namespace IPNetworkHelper.Tests
 
             var result = network.Extract(desired).ToArray();
             var expected = new[] { "192.168.0.0/17", "192.168.128.0/19", "192.168.160.0/21", "192.168.168.0/22", "192.168.172.0/23", "192.168.174.0/24", "192.168.175.0/24", "192.168.176.0/20", "192.168.192.0/19", "192.168.224.0/22", "192.168.228.0/24", "192.168.229.0/24", "192.168.230.0/23", "192.168.232.0/22", "192.168.236.0/23", "192.168.238.0/24", "192.168.239.0/25", "192.168.239.128/26", "192.168.239.192/27", "192.168.239.224/28", "192.168.239.240/29", "192.168.239.248/30", "192.168.239.252/30", "192.168.240.0/20" }.Select(v => NetworkHelper.Parse(v)).ToArray();
+
+            Assert.IsTrue(result.Select((n, i) => expected[i].Equals(n)).All(v => true));
+        }
+
+        [TestMethod]
+        public void ExtractMultipleSkipsCreated()
+        {
+            // See https://github.com/RobThree/IPNetworkHelper/issues/1#issuecomment-1034793979
+            var network = NetworkHelper.Parse("37.0.0.0/8");
+            var desired = new[] { "37.10.128.0/17", "37.12.128.0/18", "37.13.64.0/18", "37.13.128.0/17" }.Select(v => NetworkHelper.Parse(v)).ToArray();
+
+            var result = network.Extract(desired).ToArray();
+            var expected = new[] { "37.0.0.0/13", "37.8.0.0/15", "37.10.0.0/17", "37.10.128.0/17", "37.11.0.0/16", "37.12.0.0/17", "37.12.128.0/18", "37.12.192.0/18", "37.13.0.0/18", "37.13.64.0/18", "37.13.128.0/17", "37.14.0.0/15", "37.16.0.0/12", "37.32.0.0/11", "37.64.0.0/10", "37.128.0.0/9" }.Select(v => NetworkHelper.Parse(v)).ToArray();
 
             Assert.IsTrue(result.Select((n, i) => expected[i].Equals(n)).All(v => true));
         }
@@ -191,7 +228,7 @@ namespace IPNetworkHelper.Tests
 
             try
             {
-                network.Extract(desired).ToArray();
+                network.Extract(desired);
                 Assert.Fail();
             }
             catch (IPNetworkNotInIPNetworkException ex)

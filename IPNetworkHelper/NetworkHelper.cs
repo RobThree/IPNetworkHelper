@@ -197,7 +197,7 @@ namespace IPNetworkHelper
                 throw new AddressFamilyMismatchException(network.Prefix.AddressFamily, desiredNetwork.Prefix.AddressFamily);
             }
 
-            if (desiredNetwork.PrefixLength <= network.PrefixLength)
+            if (desiredNetwork.PrefixLength < network.PrefixLength)
             {
                 throw new IPNetworkLargerThanIPNetworkException(network, desiredNetwork);
             }
@@ -219,5 +219,6 @@ namespace IPNetworkHelper
             }
             yield return network;                               // Lastly, return the extracted network
         }
+
     }
 }
