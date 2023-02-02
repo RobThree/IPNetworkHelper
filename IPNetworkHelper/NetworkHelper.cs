@@ -6,219 +6,200 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 
-namespace IPNetworkHelper
+namespace IPNetworkHelper;
+
+public static class NetworkHelper
 {
-    public static class NetworkHelper
+    public static IPNetwork Parse(string value)
+        => TryParse(value, out var result)
+        ? result : throw new FormatException($"{value} is not a valid IP network");
+
+    public static bool TryParse(string value, [NotNullWhen(true)] out IPNetwork? result)
     {
-        public static IPNetwork Parse(string value)
+        result = null;
+
+        var parts = (value ?? string.Empty).Split('/', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length == 2 && IPAddress.TryParse(parts[0].Trim(), out var prefix) && int.TryParse(parts[1].Trim(), out var prefixlength))
         {
-            if (TryParse(value, out var result))
+            var ipbytes = prefix.GetAddressBytes();
+            if (!IsValidPrefixLength(ipbytes, prefixlength))
             {
-                return result;
+                return false;
             }
 
-            throw new FormatException($"{value} is not a valid IP network");
+            var network = new IPAddress(CalculateFirstBytes(ipbytes, prefixlength));
+            if (!network.Equals(prefix))
+            {
+                return false;
+            }
+
+            result = new IPNetwork(network, prefixlength);
+            return true;
+        }
+        return false;
+    }
+
+    public static IPAddress GetFirstIP(this IPNetwork network) => network == null
+            ? throw new ArgumentNullException(nameof(network))
+            : new(CalculateFirstBytes(network.Prefix.GetAddressBytes(), network.PrefixLength));
+
+    private static byte[] CalculateFirstBytes(byte[] prefixBytes, int prefixLength)
+    {
+        var result = new byte[prefixBytes.Length];
+        var mask = CreateMask(prefixBytes, prefixLength);
+        for (var i = 0; i < prefixBytes.Length; i++)
+        {
+            result[i] = (byte)(prefixBytes[i] & mask[i]);
         }
 
-        public static bool TryParse(string value, [NotNullWhen(true)] out IPNetwork? result)
+        return result;
+    }
+
+    public static IPAddress GetLastIP(this IPNetwork network)
+        => network == null
+        ? throw new ArgumentNullException(nameof(network))
+        : new(CalculateLastBytes(network.Prefix.GetAddressBytes(), network.PrefixLength));
+
+    internal static byte[] CalculateLastBytes(byte[] prefixBytes, int prefixLength)
+    {
+        var result = new byte[prefixBytes.Length];
+        var mask = CreateMask(prefixBytes, prefixLength);
+        for (var i = 0; i < prefixBytes.Length; i++)
         {
-            result = null;
-
-            var parts = (value ?? string.Empty).Split('/', StringSplitOptions.RemoveEmptyEntries);
-            if (parts.Length == 2 && IPAddress.TryParse(parts[0].Trim(), out var prefix) && int.TryParse(parts[1].Trim(), out var prefixlength))
-            {
-                var ipbytes = prefix.GetAddressBytes();
-                if (!IsValidPrefixLength(ipbytes, prefixlength))
-                {
-                    return false;
-                }
-
-                var network = new IPAddress(CalculateFirstBytes(ipbytes, prefixlength));
-                if (!network.Equals(prefix))
-                {
-                    return false;
-                }
-
-                result = new IPNetwork(network, prefixlength);
-                return true;
-            }
-            return false;
+            result[i] = (byte)(prefixBytes[i] | ~mask[i]);
         }
 
-        public static IPAddress GetFirstIP(this IPNetwork network)
-        {
-            if (network == null)
-            {
-                throw new ArgumentNullException(nameof(network));
-            }
+        return result;
+    }
 
-            return new(CalculateFirstBytes(network.Prefix.GetAddressBytes(), network.PrefixLength));
+    private static bool IsValidPrefixLength(byte[] prefixBytes, int prefixLength)
+        => prefixLength <= prefixBytes.Length * 8 && prefixLength >= 0;
+
+    private static byte[] CreateMask(byte[] prefixBytes, int prefixLength)
+    {
+        if (!IsValidPrefixLength(prefixBytes, prefixLength))
+        {
+            throw new ArgumentOutOfRangeException(nameof(prefixLength), "Invalid prefix length");
         }
 
-        private static byte[] CalculateFirstBytes(byte[] prefixBytes, int prefixLength)
+        var mask = new byte[prefixBytes.Length];
+        var remainingbits = prefixLength;
+        var i = 0;
+        while (remainingbits >= 8)
         {
-            var result = new byte[prefixBytes.Length];
-            var mask = CreateMask(prefixBytes, prefixLength);
-            for (var i = 0; i < prefixBytes.Length; i++)
-            {
-                result[i] = (byte)(prefixBytes[i] & mask[i]);
-            }
-
-            return result;
+            mask[i] = 0xFF;
+            i++;
+            remainingbits -= 8;
+        }
+        if (remainingbits > 0)
+        {
+            mask[i] = (byte)(0xFF << (8 - remainingbits));
         }
 
-        public static IPAddress GetLastIP(this IPNetwork network)
-        {
-            if (network == null)
-            {
-                throw new ArgumentNullException(nameof(network));
-            }
+        return mask;
+    }
 
-            return new(CalculateLastBytes(network.Prefix.GetAddressBytes(), network.PrefixLength));
+    public static bool HasValidPrefix(this IPNetwork network)
+        => GetFirstIP(network).Equals(network.Prefix);
+
+    public static (IPNetwork left, IPNetwork right) Split(this IPNetwork network)
+    {
+        if (network == null)
+        {
+            throw new ArgumentNullException(nameof(network));
         }
 
-        internal static byte[] CalculateLastBytes(byte[] prefixBytes, int prefixLength)
+        var prefixbytes = CalculateFirstBytes(network.Prefix.GetAddressBytes(), network.PrefixLength);
+        var maxprefix = prefixbytes.Length * 8;
+        if (network.PrefixLength >= maxprefix)
         {
-            var result = new byte[prefixBytes.Length];
-            var mask = CreateMask(prefixBytes, prefixLength);
-            for (var i = 0; i < prefixBytes.Length; i++)
-            {
-                result[i] = (byte)(prefixBytes[i] | ~mask[i]);
-            }
-
-            return result;
+            throw new UnableToSplitIPNetworkException(network);
         }
 
-        private static bool IsValidPrefixLength(byte[] prefixBytes, int prefixLength)
-            => prefixLength <= prefixBytes.Length * 8 && prefixLength >= 0;
+        // Left part of split is simply first half of network
+        var left = new IPNetwork(new(prefixbytes), network.PrefixLength + 1);
 
-        private static byte[] CreateMask(byte[] prefixBytes, int prefixLength)
+        // Right part of split is second half of network
+        // We need to set the "network MSB" for the second half
+        var byteindex = network.PrefixLength / 8;
+        var bitinbyteindex = 7 - (network.PrefixLength % 8);
+        prefixbytes[byteindex] |= (byte)(1 << bitinbyteindex);
+
+        return (left, new IPNetwork(new(prefixbytes), network.PrefixLength + 1));
+    }
+
+    public static IEnumerable<IPNetwork> Extract(this IPNetwork network, int prefixLength)
+        => Extract(network, network.Prefix.AddressFamily switch
         {
-            if (!IsValidPrefixLength(prefixBytes, prefixLength))
+            AddressFamily.InterNetwork => new IPNetwork(IPAddress.Any, prefixLength),
+            AddressFamily.InterNetworkV6 => new IPNetwork(IPAddress.IPv6Any, prefixLength),
+            _ => throw new NotSupportedException($"Network addressfamily '{network.Prefix.AddressFamily}' not supported")
+        });
+
+    public static IEnumerable<IPNetwork> Extract(this IPNetwork network, IPNetwork desiredNetwork)
+        => ExtractImpl(network, desiredNetwork).OrderBy(i => i, IPNetworkComparer.Default);
+
+    public static IEnumerable<IPNetwork> Extract(this IPNetwork network, IEnumerable<IPNetwork> desiredNetworks)
+    {
+        // We start with a single network
+        var networks = new List<IPNetwork>(new[] { network });
+        // For each network we want to extract
+        foreach (var d in desiredNetworks)
+        {
+            // Find the target network in our networks that contains the network to be extracted
+            var target = networks.Where(n => n.Contains(d.Prefix)).FirstOrDefault();
+            if (target == null)
             {
-                throw new ArgumentOutOfRangeException(nameof(prefixLength), "Invalid prefix length");
+                throw new IPNetworkNotInIPNetworkException(network, d);
             }
 
-            var mask = new byte[prefixBytes.Length];
-            var remainingbits = prefixLength;
-            var i = 0;
-            while (remainingbits >= 8)
-            {
-                mask[i] = 0xFF;
-                i++;
-                remainingbits -= 8;
-            }
-            if (remainingbits > 0)
-            {
-                mask[i] = (byte)(0xFF << (8 - remainingbits));
-            }
+            // Remove the target network from the list
+            networks.Remove(target);
 
-            return mask;
+            // Extract the network from the target and add the results to our networks list
+            networks.AddRange(target.Extract(d));
+        }
+        return networks.OrderBy(i => i, IPNetworkComparer.Default);
+    }
+
+    private static readonly Random _rng = new();
+    private static IEnumerable<IPNetwork> ExtractImpl(IPNetwork network, IPNetwork desiredNetwork)
+    {
+        if (network == null)
+        {
+            throw new ArgumentNullException(nameof(network));
         }
 
-        public static bool HasValidPrefix(this IPNetwork network)
-            => GetFirstIP(network).Equals(network.Prefix);
-
-        public static (IPNetwork left, IPNetwork right) Split(this IPNetwork network)
+        if (desiredNetwork == null)
         {
-            if (network == null)
-            {
-                throw new ArgumentNullException(nameof(network));
-            }
-
-            var prefixbytes = CalculateFirstBytes(network.Prefix.GetAddressBytes(), network.PrefixLength);
-            var maxprefix = prefixbytes.Length * 8;
-            if (network.PrefixLength >= maxprefix)
-            {
-                throw new UnableToSplitIPNetworkException(network);
-            }
-
-            // Left part of split is simply first half of network
-            var left = new IPNetwork(new(prefixbytes), network.PrefixLength + 1);
-
-            // Right part of split is second half of network
-            // We need to set the "network MSB" for the second half
-            var byteindex = network.PrefixLength / 8;
-            var bitinbyteindex = 7 - (network.PrefixLength % 8);
-            prefixbytes[byteindex] |= (byte)(1 << bitinbyteindex);
-
-            return (left, new IPNetwork(new(prefixbytes), network.PrefixLength + 1));
+            throw new ArgumentNullException(nameof(desiredNetwork));
         }
 
-        public static IEnumerable<IPNetwork> Extract(this IPNetwork network, int prefixLength)
-            => Extract(network, network.Prefix.AddressFamily switch
-            {
-                AddressFamily.InterNetwork => new IPNetwork(IPAddress.Any, prefixLength),
-                AddressFamily.InterNetworkV6 => new IPNetwork(IPAddress.IPv6Any, prefixLength),
-                _ => throw new NotSupportedException($"Network addressfamily '{network.Prefix.AddressFamily}' not supported")
-            });
-
-        public static IEnumerable<IPNetwork> Extract(this IPNetwork network, IPNetwork desiredNetwork)
-            => ExtractImpl(network, desiredNetwork).OrderBy(i => i, IPNetworkComparer.Default);
-
-        public static IEnumerable<IPNetwork> Extract(this IPNetwork network, IEnumerable<IPNetwork> desiredNetworks)
+        if (desiredNetwork.Prefix.AddressFamily != network.Prefix.AddressFamily)
         {
-            // We start with a single network
-            var networks = new List<IPNetwork>(new[] { network });
-            // For each network we want to extract
-            foreach (var d in desiredNetworks)
-            {
-                // Find the target network in our networks that contains the network to be extracted
-                var target = networks.Where(n => n.Contains(d.Prefix)).FirstOrDefault();
-                if (target == null)
-                {
-                    throw new IPNetworkNotInIPNetworkException(network, d);
-                }
-
-                // Remove the target network from the list
-                networks.Remove(target);
-
-                // Extract the network from the target and add the results to our networks list
-                networks.AddRange(target.Extract(d));
-            }
-            return networks.OrderBy(i => i, IPNetworkComparer.Default);
+            throw new AddressFamilyMismatchException(network.Prefix.AddressFamily, desiredNetwork.Prefix.AddressFamily);
         }
 
-        private static readonly Random _rng = new();
-        private static IEnumerable<IPNetwork> ExtractImpl(IPNetwork network, IPNetwork desiredNetwork)
+        if (desiredNetwork.PrefixLength < network.PrefixLength)
         {
-            if (network == null)
-            {
-                throw new ArgumentNullException(nameof(network));
-            }
-
-            if (desiredNetwork == null)
-            {
-                throw new ArgumentNullException(nameof(desiredNetwork));
-            }
-
-            if (desiredNetwork.Prefix.AddressFamily != network.Prefix.AddressFamily)
-            {
-                throw new AddressFamilyMismatchException(network.Prefix.AddressFamily, desiredNetwork.Prefix.AddressFamily);
-            }
-
-            if (desiredNetwork.PrefixLength < network.PrefixLength)
-            {
-                throw new IPNetworkLargerThanIPNetworkException(network, desiredNetwork);
-            }
-
-            var pickatrandom = desiredNetwork.Prefix.Equals(IPAddress.Any) || desiredNetwork.Prefix.Equals(IPAddress.IPv6Any);
-            if (!pickatrandom && !network.Contains(desiredNetwork.Prefix))
-            {
-                throw new IPNetworkNotInIPNetworkException(network, desiredNetwork);
-            }
-
-            while (network.PrefixLength < desiredNetwork.PrefixLength) // Repeat until we reach desired prefixlength
-            {
-                var (left, right) = network.Split();            // Split the given network into two halves
-                var goleft = pickatrandom                       // If "pick at random"
-                    ? _rng.Next(0, 2) == 0                      // ... use a 50/50 chance to pick a half
-                    : left.Contains(desiredNetwork.Prefix);            // ... else: is the desired prefix in the left half?
-                yield return goleft ? right : left;             // Return half that DOESN'T contain desired network
-                network = goleft ? left : right;                // This is the part containing our desired network
-            }
-            yield return network;                               // Lastly, return the extracted network
+            throw new IPNetworkLargerThanIPNetworkException(network, desiredNetwork);
         }
 
+        var pickatrandom = desiredNetwork.Prefix.Equals(IPAddress.Any) || desiredNetwork.Prefix.Equals(IPAddress.IPv6Any);
+        if (!pickatrandom && !network.Contains(desiredNetwork.Prefix))
+        {
+            throw new IPNetworkNotInIPNetworkException(network, desiredNetwork);
+        }
+
+        while (network.PrefixLength < desiredNetwork.PrefixLength) // Repeat until we reach desired prefixlength
+        {
+            var (left, right) = network.Split();            // Split the given network into two halves
+            var goleft = pickatrandom                       // If "pick at random"
+                ? _rng.Next(0, 2) == 0                      // ... use a 50/50 chance to pick a half
+                : left.Contains(desiredNetwork.Prefix);            // ... else: is the desired prefix in the left half?
+            yield return goleft ? right : left;             // Return half that DOESN'T contain desired network
+            network = goleft ? left : right;                // This is the part containing our desired network
+        }
+        yield return network;                               // Lastly, return the extracted network
     }
 }
