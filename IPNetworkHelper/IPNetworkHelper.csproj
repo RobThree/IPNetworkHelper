@@ -6,7 +6,7 @@
     <LangVersion>latest</LangVersion>
     <Authors>RobIII</Authors>
     <Company>Devcorner.nl</Company>
-    <Copyright>(c) 2021 RobIII</Copyright>
+    <Copyright>(c) 2021 - 2022 RobIII</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageProjectUrl>https://github.com/RobThree/IPNetworkHelper</PackageProjectUrl>
@@ -15,8 +15,8 @@
     <RepositoryUrl>https://github.com/RobThree/IPNetworkHelper</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>networking, csharp, ipv6, dotnet, network, ipv4, ip, cidr, extension-methods, dotnet-standard, ipv6-network, cidr-notation, ipv6-subnetting, ipv4-subnetting, ipv4-network, cidr-subnet</PackageTags>
-    <PackageReleaseNotes>Duplicate networks are now ignored/skipped when extracting multiple networks</PackageReleaseNotes>
-    <Version>1.0.5</Version>
+    <PackageReleaseNotes>Added Contains(IPNetwork) extension method</PackageReleaseNotes>
+    <Version>1.1.0</Version>
     <Description>Provides helper (extension)methods for working with IPNetworks</Description>
   </PropertyGroup>
 

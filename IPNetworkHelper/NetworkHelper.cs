@@ -39,6 +39,10 @@ public static class NetworkHelper
         return false;
     }
 
+    public static bool Contains(this IPNetwork thisNetwork, IPNetwork otherNetwork)
+        => thisNetwork.Contains(otherNetwork.Prefix)
+        || otherNetwork.Contains(thisNetwork.Prefix);
+
     public static IPAddress GetFirstIP(this IPNetwork network) => network == null
             ? throw new ArgumentNullException(nameof(network))
             : new(CalculateFirstBytes(network.Prefix.GetAddressBytes(), network.PrefixLength));

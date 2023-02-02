@@ -252,4 +252,34 @@ public class NetworkHelperTests
         Assert.IsTrue(NetworkHelper.HasValidPrefix(n1));
         Assert.IsFalse(NetworkHelper.HasValidPrefix(n2));
     }
+
+    [TestMethod]
+    public void Network_Contains_OtherNetwork()
+    {
+
+        /*  0    16   32   48   64   80            128                                     255 
+         *  |----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|
+         *  |\_A_/    \__B_/\_C_/\_D_/
+         *  |                   |
+         *  \________E__________/
+         */
+
+        var network_a = NetworkHelper.Parse("192.168.0.0/28");   // 192.168.0.0 - ..15
+        var network_b = NetworkHelper.Parse("192.168.0.32/28");  // 192.168.0.32 - ..47
+        var network_c = NetworkHelper.Parse("192.168.0.48/28");  // 192.168.0.48 - ..63
+        var network_d = NetworkHelper.Parse("192.168.0.64/28");  // 192.168.0.64 - ..79
+        var network_e = NetworkHelper.Parse("192.168.0.0/26");   // 192.168.0.0  - ..63
+
+        Assert.IsTrue(network_a.Contains(network_e));
+        Assert.IsTrue(network_e.Contains(network_a));
+
+        Assert.IsTrue(network_b.Contains(network_e));
+        Assert.IsTrue(network_e.Contains(network_b));
+
+        Assert.IsTrue(network_c.Contains(network_e));
+        Assert.IsTrue(network_e.Contains(network_c));
+
+        Assert.IsFalse(network_d.Contains(network_e));
+        Assert.IsFalse(network_e.Contains(network_d));
+    }
 }
