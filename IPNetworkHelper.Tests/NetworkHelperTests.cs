@@ -10,6 +10,31 @@ namespace IPNetworkHelper.Tests;
 public class NetworkHelperTests
 {
     [TestMethod]
+    public void TryParseInvalidCIDRIPv4()
+        => Assert.IsFalse(NetworkHelper.TryParse("127.0.0.1/1/2", out var network));
+
+    [TestMethod]
+    public void TryParseInvalidCIDRIPv6()
+    => Assert.IsFalse(NetworkHelper.TryParse("::1/1/2", out var network));
+
+
+    [TestMethod]
+    public void TryParseCIDRWithoutPrefixLengthIPv4()
+    {
+        Assert.IsTrue(NetworkHelper.TryParse("127.0.0.1", out var network));
+        Assert.AreEqual(32, network.PrefixLength);
+        Assert.IsTrue(IPAddress.Parse("127.0.0.1").Equals(network.Prefix));
+    }
+
+    [TestMethod]
+    public void TryParseCIDRWithoutPrefixLengthIPv6()
+    {
+        Assert.IsTrue(NetworkHelper.TryParse("::1", out var network));
+        Assert.AreEqual(128, network.PrefixLength);
+        Assert.IsTrue(IPAddress.Parse("::1").Equals(network.Prefix));
+    }
+
+    [TestMethod]
     public void TryParseCIDRIPv4()
     {
         Assert.IsTrue(NetworkHelper.TryParse("192.168.0.0/24", out var network));

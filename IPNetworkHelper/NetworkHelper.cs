@@ -19,8 +19,15 @@ public static class NetworkHelper
         result = null;
 
         var parts = (value ?? string.Empty).Split('/', StringSplitOptions.RemoveEmptyEntries);
-        if (parts.Length == 2 && IPAddress.TryParse(parts[0].Trim(), out var prefix) && int.TryParse(parts[1].Trim(), out var prefixlength))
+        if (parts.Length >= 1 && IPAddress.TryParse(parts[0], out var prefix))
         {
+            int prefixlength = parts.Length switch
+            {
+                1 => GetDefaultPrefixLength(prefix),
+                2 => int.TryParse(parts[1], out prefixlength) ? prefixlength : -1,
+                _ => -1
+            };
+
             var ipbytes = prefix.GetAddressBytes();
             if (!IsValidPrefixLength(ipbytes, prefixlength))
             {
@@ -36,8 +43,17 @@ public static class NetworkHelper
             result = new IPNetwork(network, prefixlength);
             return true;
         }
+
         return false;
     }
+
+    private static int GetDefaultPrefixLength(IPAddress ip)
+        => ip.AddressFamily switch
+        {
+            AddressFamily.InterNetwork => 32,
+            AddressFamily.InterNetworkV6 => 128,
+            _ => throw new NotSupportedException($"Network addressfamily '{ip.AddressFamily}' not supported")
+        };
 
     public static bool Contains(this IPNetwork thisNetwork, IPNetwork otherNetwork)
         => thisNetwork.Contains(otherNetwork.Prefix)
@@ -77,7 +93,7 @@ public static class NetworkHelper
     }
 
     private static bool IsValidPrefixLength(byte[] prefixBytes, int prefixLength)
-        => prefixLength <= prefixBytes.Length * 8 && prefixLength >= 0;
+        => prefixLength >= 0 && prefixLength <= prefixBytes.Length * 8;
 
     private static byte[] CreateMask(byte[] prefixBytes, int prefixLength)
     {
@@ -151,11 +167,7 @@ public static class NetworkHelper
         foreach (var d in desiredNetworks)
         {
             // Find the target network in our networks that contains the network to be extracted
-            var target = networks.Where(n => n.Contains(d.Prefix)).FirstOrDefault();
-            if (target == null)
-            {
-                throw new IPNetworkNotInIPNetworkException(network, d);
-            }
+            var target = networks.Where(n => n.Contains(d.Prefix)).FirstOrDefault() ?? throw new IPNetworkNotInIPNetworkException(network, d);
 
             // Remove the target network from the list
             networks.Remove(target);
