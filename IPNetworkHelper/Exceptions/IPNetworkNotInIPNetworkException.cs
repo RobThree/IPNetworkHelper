@@ -1,17 +1,10 @@
-﻿using Microsoft.AspNetCore.HttpOverrides;
-using System;
+﻿using System.Net;
 
-namespace IPNetworkHelper;
+namespace IPNetworkHelper.Exceptions;
 
-public class IPNetworkNotInIPNetworkException : IPNetworkException
+public class IPNetworkNotInIPNetworkException(IPNetwork network, IPNetwork other)
+    : IPNetworkException($"Network not in network")
 {
-    public IPNetwork IPNetwork { get; private set; }
-    public IPNetwork Other { get; private set; }
-
-    public IPNetworkNotInIPNetworkException(IPNetwork network, IPNetwork other)
-        : base($"Network not in network")
-    {
-        IPNetwork = network ?? throw new ArgumentNullException(nameof(network));
-        Other = other ?? throw new ArgumentNullException(nameof(other));
-    }
+    public IPNetwork IPNetwork { get; private set; } = network;
+    public IPNetwork Other { get; private set; } = other;
 }

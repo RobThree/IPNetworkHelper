@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace IPNetworkHelper;
+namespace IPNetworkHelper.Comparers;
 
 /// <summary>
 /// Provides the base interface for implementation of the <see cref="IPAddressComparer"/> class.

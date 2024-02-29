@@ -1,9 +1,7 @@
 ﻿using System;
 
-namespace IPNetworkHelper;
+namespace IPNetworkHelper.Exceptions;
 
-public abstract class IPNetworkException : Exception
-{
-    public IPNetworkException(string? message, Exception? innerExeption = null)
-        : base(message, innerExeption) { }
-}
+public abstract class IPNetworkException(string? message, Exception? innerExeption = null)
+    : Exception(message, innerExeption)
+{ }

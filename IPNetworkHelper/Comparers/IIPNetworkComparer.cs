@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.HttpOverrides;
+﻿using System.Net;
 
-namespace IPNetworkHelper;
+namespace IPNetworkHelper.Comparers;
 
 /// <summary>
 /// Provides the base interface for implementation of the <see cref="IPNetworkComparer"/> class.
@@ -9,7 +9,7 @@ public interface IIPNetworkComparer
 {
     /// <summary>
     /// Performs a comparison of two <see cref="IPNetwork"/>s and returns a value indicating whether one network
-    /// is less than,  equal to, or greater than the other.
+    /// is less than, equal to, or greater than the other.
     /// </summary>
     /// <param name="x">The first <see cref="IPNetwork"/> to compare.</param>
     /// <param name="y">The second <see cref="IPNetwork"/> to compare.</param>
@@ -23,5 +23,5 @@ public interface IIPNetworkComparer
     /// Greater than zero
     /// <paramref name="x"/> is greater than <paramref name="y"/>.
     /// </returns>
-    int Compare(IPNetwork? x, IPNetwork? y);
+    int Compare(IPNetwork x, IPNetwork y);
 }

@@ -1,13 +1,10 @@
-﻿using Microsoft.AspNetCore.HttpOverrides;
-using System;
+﻿using System;
+using System.Net;
 
-namespace IPNetworkHelper;
+namespace IPNetworkHelper.Exceptions;
 
-public class UnableToSplitIPNetworkException : IPNetworkException
+public class UnableToSplitIPNetworkException(IPNetwork network, Exception? innerExeption = null)
+    : IPNetworkException("Unable to split network into smaller network", innerExeption)
 {
-    public IPNetwork IPNetwork { get; private set; }
-
-    public UnableToSplitIPNetworkException(IPNetwork network, Exception? innerExeption = null)
-        : base("Unable to split network into smaller network", innerExeption)
-        => IPNetwork = network ?? throw new ArgumentNullException(nameof(network));
+    public IPNetwork IPNetwork { get; private set; } = network;
 }

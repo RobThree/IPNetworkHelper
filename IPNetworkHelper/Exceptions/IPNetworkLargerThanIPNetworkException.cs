@@ -1,17 +1,10 @@
-﻿using Microsoft.AspNetCore.HttpOverrides;
-using System;
+﻿using System.Net;
 
-namespace IPNetworkHelper;
+namespace IPNetworkHelper.Exceptions;
 
-public class IPNetworkLargerThanIPNetworkException : IPNetworkException
+public class IPNetworkLargerThanIPNetworkException(IPNetwork network, IPNetwork other)
+    : IPNetworkException($"Network is larger than network")
 {
-    public IPNetwork IPNetwork { get; private set; }
-    public IPNetwork Other { get; private set; }
-
-    public IPNetworkLargerThanIPNetworkException(IPNetwork network, IPNetwork other)
-        : base($"Network is larger than network")
-    {
-        IPNetwork = network ?? throw new ArgumentNullException(nameof(network));
-        Other = other ?? throw new ArgumentNullException(nameof(other));
-    }
+    public IPNetwork IPNetwork { get; private set; } = network;
+    public IPNetwork Other { get; private set; } = other;
 }

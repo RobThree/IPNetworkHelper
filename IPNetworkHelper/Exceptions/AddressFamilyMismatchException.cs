@@ -1,16 +1,10 @@
 ﻿using System.Net.Sockets;
 
-namespace IPNetworkHelper;
+namespace IPNetworkHelper.Exceptions;
 
-public class AddressFamilyMismatchException : IPNetworkException
+public class AddressFamilyMismatchException(AddressFamily addressFamily, AddressFamily other)
+    : IPNetworkException($"AddressFamily mismatch")
 {
-    public AddressFamily AddressFamily { get; private set; }
-    public AddressFamily Other { get; private set; }
-
-    public AddressFamilyMismatchException(AddressFamily addressFamily, AddressFamily other)
-        : base($"AddressFamily mismatch")
-    {
-        AddressFamily = addressFamily;
-        Other = other;
-    }
+    public AddressFamily AddressFamily { get; private set; } = addressFamily;
+    public AddressFamily Other { get; private set; } = other;
 }

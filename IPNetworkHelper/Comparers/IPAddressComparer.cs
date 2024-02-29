@@ -1,8 +1,9 @@
-﻿using System;
+﻿using IPNetworkHelper.Exceptions;
+using System;
 using System.Collections.Generic;
 using System.Net;
 
-namespace IPNetworkHelper;
+namespace IPNetworkHelper.Comparers;
 
 /// <summary>
 /// Compares IP addresses to determine numerically which is greater than the other.

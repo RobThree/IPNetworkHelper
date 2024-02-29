@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.HttpOverrides;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Net;
 
-namespace IPNetworkHelper;
+namespace IPNetworkHelper.Comparers;
 
 /// <summary>
 /// Compares IP addresses to determine numerically which is greater than the other.
@@ -18,25 +18,11 @@ public class IPNetworkComparer : Comparer<IPNetwork>, IIPNetworkComparer
     public static new IPNetworkComparer Default => _default.Value;
 
     /// <inheritdoc/>
-    public override int Compare(IPNetwork? x, IPNetwork? y)
+    public override int Compare(IPNetwork x, IPNetwork y)
     {
-        if (ReferenceEquals(x, y))
-        {
-            return 0;   // same instance
-        }
-
-        if (x is null)
-        {
-            return -1;  // nulls are always less than non-null
-        }
-
-        if (y is null)
-        {
-            return 1;   // non-null is always greater than null
-        }
-
-        // First compare by prefix
-        var result = IPAddressComparer.Default.Compare(x.Prefix, y.Prefix);
-        return result == 0 ? x.PrefixLength.CompareTo(y.PrefixLength) : result;
+        var result = IPAddressComparer.Default.Compare(x.BaseAddress, y.BaseAddress);
+        return result == 0
+            ? x.PrefixLength.CompareTo(y.PrefixLength)
+            : result;
     }
 }
