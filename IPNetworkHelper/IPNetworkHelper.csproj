@@ -8,7 +8,7 @@
 		<AnalysisLevel>latest</AnalysisLevel>
 		<Authors>RobIII</Authors>
 		<Company>Devcorner.nl</Company>
-		<Copyright>(c) 2021 - 2022 RobIII</Copyright>
+		<Copyright>(c) 2021 - 2024 RobIII</Copyright>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageProjectUrl>https://github.com/RobThree/IPNetworkHelper</PackageProjectUrl>
@@ -20,12 +20,17 @@
 		<PackageReleaseNotes>Added Contains(IPNetwork) extension method</PackageReleaseNotes>
 		<Version>1.2.0</Version>
 		<Description>Provides helper (extension)methods for working with IPNetworks</Description>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<None Include="..\logo.png">
 			<Pack>True</Pack>
 			<PackagePath></PackagePath>
+		</None>
+		<None Include="..\README.md">
+		  <Pack>True</Pack>
+		  <PackagePath>\</PackagePath>
 		</None>
 	</ItemGroup>
 
