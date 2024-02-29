@@ -1,4 +1,3 @@
-using IPNetworkHelper.Comparers;
 using IPNetworkHelper.Exceptions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
@@ -10,8 +9,6 @@ namespace IPNetworkHelper.Tests;
 [TestClass]
 public class NetworkHelperTests
 {
-    private static readonly IPNetworkComparer _testcomparer = new();
-
     [TestMethod]
     public void TryParseInvalidCIDRIPv4()
         => Assert.IsFalse(IPNetwork.TryParse("127.0.0.1/1/2", out var _));
