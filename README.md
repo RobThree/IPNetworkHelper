@@ -57,6 +57,6 @@ var networks = new[] { "192.168.64.0/18", "192.168.10.32/27", "192.168.0.0/16", 
     .OrderBy(n => n, IPNetworkComparer.Default);
 ```
 
-<hr>
+---
 
 Icon made by [prettycons](http://www.flaticon.com/authors/prettycons) from [www.flaticon.com](http://www.flaticon.com) is licensed by [CC 3.0](http://creativecommons.org/licenses/by/3.0/).
