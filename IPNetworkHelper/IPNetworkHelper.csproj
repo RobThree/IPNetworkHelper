@@ -10,7 +10,6 @@
 		<Company>Devcorner.nl</Company>
 		<Copyright>(c) 2021 - 2024 RobIII</Copyright>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageProjectUrl>https://github.com/RobThree/IPNetworkHelper</PackageProjectUrl>
 		<PackageIcon>logo.png</PackageIcon>
 		<PackageIconUrl />
@@ -18,7 +17,6 @@
 		<RepositoryType>git</RepositoryType>
 		<PackageTags>networking, csharp, ipv6, dotnet, network, ipv4, ip, cidr, extension-methods, dotnet-standard, ipv6-network, cidr-notation, ipv6-subnetting, ipv4-subnetting, ipv4-network, cidr-subnet</PackageTags>
 		<PackageReleaseNotes>Added Contains(IPNetwork) extension method</PackageReleaseNotes>
-		<Version>1.2.0</Version>
 		<Description>Provides helper (extension)methods for working with IPNetworks</Description>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 	</PropertyGroup>
