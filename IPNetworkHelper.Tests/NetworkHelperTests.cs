@@ -114,7 +114,7 @@ public class NetworkHelperTests
 
 
     [TestMethod]
-    [ExpectedException(typeof(AddressFamilyMismatchException))]
+    [ExpectedException(typeof(IPNetworkNotInIPNetworkException))]
     public void ExtractThrowsOnAddressFamilyMismatch()
     {
         var ipv4 = IPNetwork.Parse("192.168.0.0/24");
@@ -267,16 +267,46 @@ public class NetworkHelperTests
         var network_d = IPNetwork.Parse("192.168.0.64/28");  // 192.168.0.64 - ..79
         var network_e = IPNetwork.Parse("192.168.0.0/26");   // 192.168.0.0  - ..63
 
-        Assert.IsTrue(network_a.Contains(network_e));
+        Assert.IsFalse(network_a.Contains(network_e));
         Assert.IsTrue(network_e.Contains(network_a));
 
-        Assert.IsTrue(network_b.Contains(network_e));
+        Assert.IsFalse(network_b.Contains(network_e));
         Assert.IsTrue(network_e.Contains(network_b));
 
-        Assert.IsTrue(network_c.Contains(network_e));
+        Assert.IsFalse(network_c.Contains(network_e));
         Assert.IsTrue(network_e.Contains(network_c));
 
         Assert.IsFalse(network_d.Contains(network_e));
         Assert.IsFalse(network_e.Contains(network_d));
+    }
+
+    [TestMethod]
+    public void Network_Overlaps_OtherNetwork()
+    {
+
+        /*  0    16   32   48   64   80            128                                     255 
+         *  |----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|
+         *  |\_A_/    \__B_/\_C_/\_D_/
+         *  |                   |
+         *  \________E__________/
+         */
+
+        var network_a = IPNetwork.Parse("192.168.0.0/28");   // 192.168.0.0 - ..15
+        var network_b = IPNetwork.Parse("192.168.0.32/28");  // 192.168.0.32 - ..47
+        var network_c = IPNetwork.Parse("192.168.0.48/28");  // 192.168.0.48 - ..63
+        var network_d = IPNetwork.Parse("192.168.0.64/28");  // 192.168.0.64 - ..79
+        var network_e = IPNetwork.Parse("192.168.0.0/26");   // 192.168.0.0  - ..63
+
+        Assert.IsTrue(network_a.Overlaps(network_e));
+        Assert.IsTrue(network_e.Overlaps(network_a));
+
+        Assert.IsTrue(network_b.Overlaps(network_e));
+        Assert.IsTrue(network_e.Overlaps(network_b));
+
+        Assert.IsTrue(network_c.Overlaps(network_e));
+        Assert.IsTrue(network_e.Overlaps(network_c));
+
+        Assert.IsFalse(network_d.Overlaps(network_e));
+        Assert.IsFalse(network_e.Overlaps(network_d));
     }
 }

@@ -1,8 +1,10 @@
 # ![logo](https://raw.githubusercontent.com/RobThree/IPNetworkHelper/master/logo_24x24.png) IPNetworkHelper
 
-Provides helper (extension)methods for working with (IPv4 and/or IPv6) [IPNetworks](https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.httpoverrides.ipnetwork). These include parsing, splitting and extracting networks from larger networks. Available as [NuGet package](https://www.nuget.org/packages/IPNetworkHelper/).
+Provides helper (extension)methods for working with (IPv4 and/or IPv6) [IPNetworks](https://learn.microsoft.com/en-us/dotnet/api/system.net.ipnetwork). These include splitting and extracting networks from larger networks. Available as [NuGet package](https://www.nuget.org/packages/IPNetworkHelper/).
 
 Note that since version 2.0 we use the [`System.Net.IPNetwork`](https://learn.microsoft.com/en-us/dotnet/api/system.net.ipnetwork) struct, which, unfortunately, is only available in .NET 8.0 and later. If you need support for earlier versions of .NET, use version 1.0 of this library.
+
+Version 3.0 has a breaking change where `Contains()` now does the more intuitive thing and checks if the network is entirely contained within another network. If you want to check if two networks overlap, use the `Overlaps()` method.
 
 ## Quickstart
 
@@ -18,14 +20,14 @@ if (IPNetwork.TryParse("192.168.0.0/16", out var othernetwork))
     // ...
 }
 
-// Get first/last IP from network
+// Get last IP from network
 var first = network.GetFirstIP();   // Network      (192.168.0.0)
 var last = network.GetLastIP();     // Broadcast    (192.168.255.255)
 
 // Splits a network into two halves
 var (left, right) = network.Split();    // Returns 192.168.0.0/17 and 192.168.128.0/17
 
-// Remove a subnet from a network
+// Extract a subnet from a network
 var desired = IPNetwork.Parse("192.168.10.16/28");
 var result = network.Extract(desired);
 
@@ -33,7 +35,7 @@ var result = network.Extract(desired);
 // 192.168.0.0/21
 // 192.168.8.0/23
 // 192.168.10.0/28
-// 192.168.10.16/28
+// 192.168.10.16/28 <- desired
 // 192.168.10.32/27
 // 192.168.10.64/26
 // 192.168.10.128/25
@@ -44,6 +46,8 @@ var result = network.Extract(desired);
 // 192.168.64.0/18
 // 192.168.128.0/17
 ```
+
+The `Contains(IPNetwork)` method can be used to check if a network is contained (entirely) within another network and the `Overlaps(IPNetwork)` method can be used to check if two networks overlap.
 
 This library also includes an `IPAddressComparer` and `IPNetworkComparer` to be used when sorting IPAddresses or networks:
 
