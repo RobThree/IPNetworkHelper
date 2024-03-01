@@ -37,4 +37,4 @@ jobs:
       run: dotnet pack -c Release --no-restore --no-build -p:Version="${{ github.event.release.tag_name }}"
 
     - name: Publish
-      run: dotnet nuget push **\*.nupkg -Source 'https://api.nuget.org/v3/index.json' -ApiKey ${{secrets.NUGET_API_KEY}}
+      run: dotnet nuget push **\*.nupkg -s 'https://api.nuget.org/v3/index.json' -k ${{secrets.NUGET_API_KEY}}
