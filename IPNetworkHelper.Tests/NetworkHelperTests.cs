@@ -114,7 +114,7 @@ public class NetworkHelperTests
 
 
     [TestMethod]
-    [ExpectedException(typeof(IPNetworkNotInIPNetworkException))]
+    [ExpectedException(typeof(AddressFamilyMismatchException))]
     public void ExtractThrowsOnAddressFamilyMismatch()
     {
         var ipv4 = IPNetwork.Parse("192.168.0.0/24");
@@ -144,6 +144,16 @@ public class NetworkHelperTests
     }
 
     [TestMethod]
+    public void ExtractIPv4Prefix()
+    {
+        var network = IPNetwork.Parse("192.168.0.0/16");
+
+        var result = network.Extract(20).ToArray();
+
+        Assert.IsTrue(result.Length == 5);
+    }
+
+    [TestMethod]
     public void ExtractIPv4()
     {
         var network = IPNetwork.Parse("192.168.0.0/16");
@@ -165,6 +175,16 @@ public class NetworkHelperTests
         var expected = new[] { IPNetwork.Parse("192.168.0.0/16") };
 
         Assert.IsTrue(result.Select((n, i) => expected[i].Equals(n)).All(v => true));
+    }
+
+    [TestMethod]
+    public void ExtractIPv6Prefix()
+    {
+        var network = IPNetwork.Parse("1111:2222::/32");
+
+        var result = network.Extract(64).ToArray();
+
+        Assert.IsTrue(result.Length == 33);
     }
 
     [TestMethod]

@@ -127,7 +127,7 @@ public static class NetworkHelper
     /// <param name="desiredNetwork">The subnet to extract from the network.</param>
     /// <returns>Returns all subnets after taking the desired subnet, including the desired subnet.</returns>
     public static IEnumerable<IPNetwork> Extract(this IPNetwork network, IPNetwork desiredNetwork)
-        => Extract(network, [desiredNetwork]);
+        => ExtractImpl(network, desiredNetwork).OrderBy(i => i, IPNetworkComparer.Default);
 
     /// <summary>
     /// Extracts the given subnets from the network and returns all subnets after taking the desired subnet, including the desired subnets.
